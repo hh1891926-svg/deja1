@@ -6,15 +6,22 @@ const SystemData = require('./models/SystemData');
 const { Parser } = require('json2csv');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB Connection
-mongoose.connect('mongodb://127.0.0.1:27017/esp32_industrial_db')
-.then(() => console.log('✅ MongoDB Connected'))
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/esp32_industrial_db';
+
+mongoose.connect(mongoURI)
+.then(() => {
+    console.log('✅ MongoDB Connected to: ' + (process.env.MONGO_URI ? "Atlas Cloud" : "Localhost"));
+    
+    // Only try to load data AFTER connecting
+    loadLastState();
+})
 .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 // --- GLOBAL VARIABLES ---
@@ -28,9 +35,11 @@ let lastChartSaveTime = 0;
 const SAVE_INTERVAL = 5 * 60 * 1000; // 5 Minutes in milliseconds
 
 // Load last known state from DB on startup
-SystemData.findOne().sort({ timestamp: -1 }).then(doc => {
-  if(doc) realTimeStatus = doc.toObject();
-});
+function loadLastState() {
+  SystemData.findOne().sort({ timestamp: -1 }).then(doc => {
+      if(doc) realTimeStatus = doc.toObject();
+  }).catch(err => console.log("Startup Load Error (Ignore if DB empty):", err.message));
+}
 
 // ==========================================
 // 1. TELEMETRY ENDPOINT
@@ -179,6 +188,6 @@ app.post('/api/control', (req, res) => {
   res.json({ status: "queued" });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
