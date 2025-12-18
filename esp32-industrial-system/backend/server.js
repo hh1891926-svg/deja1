@@ -190,6 +190,21 @@ app.post('/api/control', (req, res) => {
   res.json({ status: "queued" });
 });
 
+// --- TEMPORARY RESET ROUTE ---
+app.get('/api/reset-database', async (req, res) => {
+  try {
+    // 1. Delete everything from MongoDB
+    await SystemData.deleteMany({});
+    
+    // 2. Clear the RAM
+    realTimeStatus = {}; 
+    
+    res.send("✅ SUCCESS: Database has been completely wiped. You can restart the ESP32 now.");
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
