@@ -82,7 +82,7 @@ SensorData sensorData;
 
 const char *wifi_ssid = "PLC_PROJECT";
 const char *wifi_password = "K9348280";
-const char *serverUrl = "http://plctemp.glitch.me/api/temperature";
+const char *serverUrl = "https://api.dejaa.site/api/telemetry";
 
 const unsigned long dataSendInterval = 3 * 1000UL;
 unsigned long lastDataSendTime = 0;
