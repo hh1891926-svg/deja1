@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: "https://app.dejaa.site" 
+  origin: "https://app.dejaa.online" 
 }));
 app.use(bodyParser.json());
 
